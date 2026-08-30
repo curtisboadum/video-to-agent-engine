@@ -76,19 +76,23 @@ def _via_faster_whisper(audio_path, model_size=DEFAULT_MODEL):
 
 
 def _via_mlx(audio_path, model_size=DEFAULT_MODEL):
+    outdir = "/tmp/vtae-asr"
     r = subprocess.run(
         ["uvx", "--from", "mlx-whisper", "mlx_whisper", audio_path,
          "--model", "mlx-community/whisper-large-v3-turbo",
-         "--output-dir", "/tmp/vtae-asr", "--output_format", "vtt",
+         "--output-dir", outdir, "--output-format", "json",
          "--task", "transcribe"],
         capture_output=True, text=True, timeout=7200)
-    vtt_path = os.path.join("/tmp/vtae-asr",
-                            os.path.splitext(os.path.basename(audio_path))[0] + ".vtt")
-    if r.returncode != 0:
-        if not os.path.exists(vtt_path):
-            raise RuntimeError(r.stderr[-300:])
-    with open(vtt_path) as f:
-        return parse_vtt(f.read())
+    json_path = os.path.join(outdir,
+                             os.path.splitext(os.path.basename(audio_path))[0] + ".json")
+    if not os.path.exists(json_path):
+        raise RuntimeError((r.stderr or "")[-300:])
+    with open(json_path) as f:
+        data = json.load(f)
+    return normalize_segments([
+        {"start": s.get("start"), "end": s.get("end"), "text": s.get("text")}
+        for s in data.get("segments", [])
+    ])
 
 
 def _via_cli(audio_path, model_size=DEFAULT_MODEL):
