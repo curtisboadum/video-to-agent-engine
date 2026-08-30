@@ -17,6 +17,8 @@ git clone https://github.com/YOU/video-to-agent-engine.git
 ln -s "$(pwd)/video-to-agent-engine/skills/video-to-agent" ~/.config/opencode/skills/video-to-agent
 ln -s "$(pwd)/video-to-agent-engine/skills/video-to-agent" ~/.claude/skills/video-to-agent
 ln -s "$(pwd)/video-to-agent-engine/skills/video-to-agent" ~/.codex/skills/video-to-agent
+mkdir -p ~/.config/opencode/commands
+cp video-to-agent-engine/commands/video-to-agent.md ~/.config/opencode/commands/
 ```
 
 Prerequisites: `ffmpeg`, `yt-dlp`, `python3`. A free Gemini key in
