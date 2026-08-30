@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+notes/
+dist/
+.env
+*.local.md
