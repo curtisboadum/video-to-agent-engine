@@ -1,26 +1,35 @@
 # Video to Agent Engine
 
-An experimental workflow for turning a video you have permission to use into a written, testable procedure. The aim is to make it clear what came from the video and where a reviewer still needs to make a judgment.
+Turn a video you have permission to use into a reviewable, testable procedure for an agent. The workflow compares readings, records what supports each claim, and carries the evidence and open questions into the proposed skill.
 
-## How it works
+## Try the coverage check
 
-1. Read a local transcript and extracted frames. A second, model-assisted read is optional and requires provider credentials.
-2. Label claims as corroborated, single-source or conflicting before turning them into a procedure.
-3. Draft the skill and run checks before choosing whether to install it.
-
-Coverage and accuracy vary with source quality, model availability and access to the original video. A generated procedure needs human review. Remote processing can have provider costs and data-handling implications; use only sources you are authorised to share.
-
-## Inspect and test
+Start with synthetic timestamps; no video, model account, API key, or network access is needed to run the check once the repo is local.
 
 ```sh
-git clone https://github.com/curtisboadum/video-to-agent-engine.git
-cd video-to-agent-engine
+python3 skills/video-to-agent/scripts/coverage.py audit \
+  --duration 24 --frames '0,1,2,21,22,23'
+```
+
+The result reports an uncovered window from **4.5 to 18.5 seconds** and recommends that range for a targeted re-scan. A coverage check identifies missing evidence; it does not establish that an interpretation is correct.
+
+## From video to proposed skill
+
+1. **Gather evidence.** Split long videos into chunks and collect transcript and frame notes. A separate provider-assisted reader can provide an independent interpretation if configured.
+2. **Reconcile the readings.** Write a `SPEC.md` that distinguishes corroborated claims, single-source claims, and conflicts that need review. Keep unresolved questions visible.
+3. **Build and review.** Turn supported claims into checks for the proposed skill. Keep the spec and evidence notes with the result, and review both before installing anything.
+
+See the [skill guide](skills/video-to-agent/SKILL.md) for orchestration and prerequisites and the [command definition](commands/video-to-agent.md) for inputs. The full workflow uses FFmpeg/ffprobe and yt-dlp where applicable, plus the dependencies for any readers and review stages you enable. Inspect provider data-handling and costs before enabling remote processing, and use only sources you are authorised to share. Accuracy depends on source quality and the available readers.
+
+## Run the tests
+
+```sh
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install pytest
 python3 -m pytest -q
 ```
 
-See [the skill guide](skills/video-to-agent/SKILL.md) and [the command](commands/video-to-agent.md) for the orchestration and prerequisites. Inspect the files before adding the skill to your agent configuration. The media path uses tools such as FFmpeg and yt-dlp.
+The [test suite](tests/) covers chunk planning and coverage checks, reader parsing, review helpers, and local transcription handling. It does not validate every video or guarantee the generated skill will work without human review.
 
 [MIT license](LICENSE)
