@@ -1,57 +1,26 @@
-# video-to-agent-engine
+# Video to Agent Engine
 
-Send a video. Get back a tested skill that runs what the video taught — plus
-the evidence behind every line of it.
+An experimental workflow for turning a video you have permission to use into a written, testable procedure. The aim is to make it clear what came from the video and where a reviewer still needs to make a judgment.
 
-Two independent readers watch the same video: `/watch` (frames + timestamped
-transcript, fully local) and Gemini (reads the YouTube URL natively on
-Google's side). An LLM council of five free models with distinct personalities
-cross-examines both readings, one labeled spec emerges
-(`CONFIRMED` / `SINGLE SOURCE` / `CONFLICT`), and the target skill is built
-under TDD and gated by adversarial QA before install.
+## How it works
 
-## Install
+1. Read a local transcript and extracted frames. A second, model-assisted read is optional and requires provider credentials.
+2. Label claims as corroborated, single-source or conflicting before turning them into a procedure.
+3. Draft the skill and run checks before choosing whether to install it.
 
-```bash
-git clone https://github.com/YOU/video-to-agent-engine.git
-ln -s "$(pwd)/video-to-agent-engine/skills/video-to-agent" ~/.config/opencode/skills/video-to-agent
-ln -s "$(pwd)/video-to-agent-engine/skills/video-to-agent" ~/.claude/skills/video-to-agent
-ln -s "$(pwd)/video-to-agent-engine/skills/video-to-agent" ~/.codex/skills/video-to-agent
-mkdir -p ~/.config/opencode/commands
-cp video-to-agent-engine/commands/video-to-agent.md ~/.config/opencode/commands/
-```
+Coverage and accuracy vary with source quality, model availability and access to the original video. A generated procedure needs human review. Remote processing can have provider costs and data-handling implications; use only sources you are authorised to share.
 
-Prerequisites: `ffmpeg`, `yt-dlp`, `python3`. A free Gemini key in
-`~/.config/watch/.env` (`GEMINI_API_KEY=...`) enables the second reader.
-OpenRouter auth for the council (free models only — enforced).
+## Inspect and test
 
-## Usage
-
-Paste a video URL and say "turn this into a skill":
-
-```
-https://youtube.com/watch?v=... build this into a reusable skill
-```
-
-The orchestrator handles everything: scoping, chunking long videos, both
-reader passes, council reconciliation, coverage audit, style/retention
-analysis, TDD build, QA gate, run-once verification, and provenance shipping.
-
-## Design guarantees
-
-- **No blind spots**: adaptive dense frames + scene-detect densify + full
-  local transcript + targeted 1 fps exhaust re-scan of any low-confidence
-  segment + coverage audit before spec finalization.
-- **Length-proof**: videos are processed in ~10-minute chunks by parallel
-  subagents; a 1-hour video gets the same per-second density as a 5-minute one.
-- **Zero cost**: every model call is either local, Gemini free tier, or an
-  OpenRouter `:free` model. `free_models.py` hard-fails anything paid.
-- **No blind trust**: every line of the spec carries its evidence label;
-  timestamps from vision models are deleted as fabrications; exact on-screen
-  strings always win over paraphrase.
-
-## Testing
-
-```bash
+```sh
+git clone https://github.com/curtisboadum/video-to-agent-engine.git
+cd video-to-agent-engine
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install pytest
 python3 -m pytest -q
 ```
+
+See [the skill guide](skills/video-to-agent/SKILL.md) and [the command](commands/video-to-agent.md) for the orchestration and prerequisites. Inspect the files before adding the skill to your agent configuration. The media path uses tools such as FFmpeg and yt-dlp.
+
+[MIT license](LICENSE)
