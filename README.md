@@ -27,8 +27,10 @@ See the [skill guide](skills/video-to-agent/SKILL.md) for orchestration and prer
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install pytest
-python3 -m pytest -q
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -q -k 'not test_build_reviewers_uses_free_models_only'
 ```
+
+The separate reviewer-selection integration test checks the OpenRouter model catalogue. The full suite can fail when a configured free model is missing from the catalogue. The local test command above excludes that check; the runtime still rejects unverified models.
 
 The [test suite](tests/) covers chunk planning and coverage checks, reader parsing, review helpers, and local transcription handling. It does not validate every video or guarantee the generated skill will work without human review.
 
